@@ -23,6 +23,7 @@ This skill statically audits a target `verl` repository and reports workflow/cas
 - UT entries are expanded to concrete test functions or test methods whenever the target Python file can be parsed
 - `torchrun` and `bash tests/*.sh` mean ST
 - Repeated commands are kept distinct by `workflow name`, `job name`, and `step name`
+- Use `--repo-root` to point at the target `verl` repository root
 
 ## Output
 

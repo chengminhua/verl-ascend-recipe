@@ -39,14 +39,6 @@ python .agent/skills/ascend-ci-case-diff-scan/scripts/scan_ascend_ci_case_diff.p
   --output-dir ./report/ascend-ci-case-diff-scan
 ```
 
-You can also use the alias:
-
-```shell
-python .agent/skills/ascend-ci-case-diff-scan/scripts/scan_ascend_ci_case_diff.py \
-  --target-repo-root {PATH}/verl \
-  --output-dir ./report/ascend-ci-case-diff-scan
-```
-
 ## Extraction Rules
 
 Recognize only workflow commands that visibly execute tests:
@@ -54,7 +46,6 @@ Recognize only workflow commands that visibly execute tests:
 - `pytest ... tests/...`
 - `bash tests/.../*.sh`
 - `torchrun ... tests/...`
-- `torchrun ... -m pytest tests/...`
 
 For each extracted case, preserve:
 
