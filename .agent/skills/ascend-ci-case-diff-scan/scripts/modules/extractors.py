@@ -164,12 +164,10 @@ def expand_pytest_directory(
 ) -> list[str]:
     """Expand one pytest directory target using pattern-based Python file discovery."""
     expanded: list[str] = []
-    for path in sorted(target_path.rglob("*.py")):
+    for path in sorted(target_path.rglob("test_*.py")):
         if not path.is_file():
             continue
         path_text = normalize_path_text(path.relative_to(repo_root).as_posix())
-        if not fnmatch(Path(path_text).name, "test_*.py"):
-            continue
         if is_ignored_pytest_target(path_text, ignore_paths, ignore_globs):
             continue
         expanded.extend(expand_python_test_file(path_text, repo_root))

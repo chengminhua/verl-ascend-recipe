@@ -112,7 +112,7 @@ def split_shell_commands(command: str) -> list[str]:
 def tokenize_command(command: str) -> list[str]:
     """Tokenize shell text conservatively and fall back when quoting is malformed."""
     try:
-        return shlex.split(command, posix=True)
+        return shlex.split(command, posix=True, comments=True)
     except ValueError:
         return command.split()
 
