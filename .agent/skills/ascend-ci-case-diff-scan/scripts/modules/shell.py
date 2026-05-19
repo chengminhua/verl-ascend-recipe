@@ -105,14 +105,6 @@ def tokenize_command(command: str) -> list[str]:
         return command.split()
 
 
-def is_placeholder_target(target: str, command_type: str) -> bool:
-    """Drop placeholder paths that do not identify a real test case."""
-    normalized_target = normalize_path_text(target)
-    return (command_type == "pytest" and normalized_target in PYTEST_DIRECTORY_TARGETS) or (
-        normalized_target in IGNORED_CASE_TARGETS
-    )
-
-
 def command_uses_torchrun(command: str, tokens: list[str]) -> bool:
     return "torchrun" in tokens or bool(TORCHRUN_RE.search(command))
 

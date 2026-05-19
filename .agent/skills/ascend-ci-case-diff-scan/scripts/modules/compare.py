@@ -35,16 +35,33 @@ def make_ref(case: dict) -> dict:
     }
 
 
+def _index_case_ids_by_workflow_path(cases: list[dict]) -> dict[str, set[str]]:
+    """Group unique case ids by workflow path for summary counting."""
+    case_ids_by_path: dict[str, set[str]] = defaultdict(set)
+    for case in cases:
+        case_ids_by_path[case["workflow_path"]].add(case["case_id"])
+    return case_ids_by_path
+
+
+def _collect_case_ids(case_ids_by_path: dict[str, set[str]], workflow_paths: set[str]) -> set[str]:
+    """Collect all case ids from the selected workflow paths."""
+    case_ids: set[str] = set()
+    for workflow_path in workflow_paths:
+        case_ids.update(case_ids_by_path.get(workflow_path, set()))
+    return case_ids
+
+
 def summarize_scanned_workflows(
     grouped_workflows: dict[str, dict[str, list[WorkflowInfo]]], cases: list[dict]
 ) -> list[dict]:
     """Build table rows for scanned workflow coverage counts."""
+    case_ids_by_path = _index_case_ids_by_workflow_path(cases)
     rows: list[dict] = []
     for pair_key, workflows in sorted(grouped_workflows.items()):
         cpu_gpu_paths = {info.workflow_path for info in workflows["cpu_gpu"]}
         npu_paths = {info.workflow_path for info in workflows["npu"]}
-        cpu_gpu_case_ids = {case["case_id"] for case in cases if case["workflow_path"] in cpu_gpu_paths}
-        npu_case_ids = {case["case_id"] for case in cases if case["workflow_path"] in npu_paths}
+        cpu_gpu_case_ids = _collect_case_ids(case_ids_by_path, cpu_gpu_paths)
+        npu_case_ids = _collect_case_ids(case_ids_by_path, npu_paths)
         workflow_names = [
             f"{info.workflow_path} ({info.workflow_name})" for info in workflows["cpu_gpu"] + workflows["npu"]
         ]
@@ -158,12 +175,21 @@ def compare_group_cases(cpu_gpu_cases: list[dict], npu_cases: list[dict]) -> dic
     return results
 
 
+def _group_cases_by_pair(cases: list[dict], case_kind: str) -> dict[str, list[dict]]:
+    """Group cases of one kind by workflow pair key."""
+    cases_by_pair: dict[str, list[dict]] = defaultdict(list)
+    for case in cases:
+        if case["case_kind"] == case_kind:
+            cases_by_pair[case["pair_key"]].append(case)
+    return cases_by_pair
+
+
 def compare_cases_by_pair(cases: list[dict], case_kind: str) -> dict[str, list[dict]]:
     """Compare cases inside each workflow pairing group and merge the results."""
     aggregated = {section_name: [] for section_name in CASE_COMPARISON_SECTIONS}
-    pair_keys = sorted({case["pair_key"] for case in cases})
-    for pair_key in pair_keys:
-        pair_cases = [case for case in cases if case["pair_key"] == pair_key and case["case_kind"] == case_kind]
+    cases_by_pair = _group_cases_by_pair(cases, case_kind)
+    for pair_key in sorted(cases_by_pair):
+        pair_cases = cases_by_pair[pair_key]
         cpu_gpu_cases = [case for case in pair_cases if case["workflow_kind"] in {"cpu", "gpu"}]
         npu_cases = [case for case in pair_cases if case["workflow_kind"] == "npu"]
         comparison = compare_group_cases(cpu_gpu_cases, npu_cases)
