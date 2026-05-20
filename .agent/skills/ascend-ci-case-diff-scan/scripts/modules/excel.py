@@ -205,14 +205,23 @@ def _workbook_namespace_attrs() -> str:
 def _styles_xml() -> str:
     return """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-<fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts>
-<fills count="1"><fill><patternFill patternType="none"/></fill></fills>
+<fonts count="2">
+<font><sz val="11"/><name val="Calibri"/></font>
+<font><b/><sz val="11"/><name val="Calibri"/></font>
+</fonts>
+<fills count="3">
+<fill><patternFill patternType="none"/></fill>
+<fill><patternFill patternType="gray125"/></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFD9D9D9"/><bgColor indexed="64"/></patternFill></fill>
+</fills>
 <borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
 <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
-<cellXfs count="2">
+<cellXfs count="3">
 <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
 <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1">
 <alignment wrapText="1" vertical="top"/></xf>
+<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"
+applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>
 </cellXfs>
 </styleSheet>"""
 
@@ -240,10 +249,11 @@ def _row_xml(row_index: int, row: list[object]) -> str:
 
 def _cell_xml(row_index: int, column_index: int, value: object) -> str:
     cell_ref = f"{_column_name(column_index)}{row_index}"
+    style_id = 2 if row_index == 1 else 1
     if isinstance(value, int):
-        return f'<c r="{cell_ref}" s="1"><v>{value}</v></c>'
+        return f'<c r="{cell_ref}" s="{style_id}"><v>{value}</v></c>'
     text = _xml_text(str(value)) if value is not None else ""
-    return f'<c r="{cell_ref}" s="1" t="inlineStr"><is><t>{text}</t></is></c>'
+    return f'<c r="{cell_ref}" s="{style_id}" t="inlineStr"><is><t>{text}</t></is></c>'
 
 
 def _column_name(index: int) -> str:
