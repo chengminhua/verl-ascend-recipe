@@ -35,6 +35,7 @@ Recognize only workflow commands that visibly execute tests:
 
 - `pytest ... tests/...`
 - `bash tests/.../*.sh`
+- `bash examples/.../*.sh`
 - `torchrun ... tests/...`
 
 ## Matching expectations
