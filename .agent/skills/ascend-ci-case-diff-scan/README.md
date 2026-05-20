@@ -8,7 +8,7 @@ This skill statically audits a target `verl` repository and reports workflow/cas
 - Pairs CPU/GPU workflows with their NPU counterparts
 - Counts UT cases at the test-function or test-method level
 - Counts ST cases at the command level
-- Writes an English `report.md`
+- Writes English `report.md` and `report.xlsx` files
 
 ## Workflow pairing
 
@@ -27,7 +27,7 @@ This skill statically audits a target `verl` repository and reports workflow/cas
 
 ## Output
 
-The report includes:
+The reports include:
 
 - ignored workflows
 - scanned workflows with CPU/GPU and NPU case counts
@@ -35,3 +35,5 @@ The report includes:
 - ST details
 
 Within UT and ST sections, the report shows matched, CPU/GPU-only, NPU-only, and manual-review cases in that order, with adjacent CPU/GPU and NPU references for easy comparison.
+
+The Excel workbook contains four sheets: `Ignored Workflows`, `Scanned Workflows`, `UT Cases`, and `ST Cases`.

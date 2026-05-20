@@ -1,6 +1,6 @@
 ---
 name: ascend-ci-case-diff-scan
-description: Scan an external verl repository for Ascend/NPU CI coverage gaps by comparing CPU/GPU workflow cases against NPU workflows. Use when Codex needs to audit workflow and case-level parity or generate a Markdown report about workflow execution differences.
+description: Scan an external verl repository for Ascend/NPU CI coverage gaps by comparing CPU/GPU workflow cases against NPU workflows. Use when Codex needs to audit workflow and case-level parity or generate Markdown and Excel reports about workflow execution differences.
 ---
 
 # Ascend CI Case Diff Scan
@@ -9,9 +9,9 @@ Audit Ascend CI coverage in a target `verl` repository with the scanner shipped 
 
 ## Overview
 
-Use this skill when you need to compare CPU/GPU workflow test coverage with NPU workflow coverage and produce an English Markdown report. The scanner is static: it reads GitHub Actions workflow `run:` commands, preserves workflow/job/step context, and does not execute tests.
+Use this skill when you need to compare CPU/GPU workflow test coverage with NPU workflow coverage and produce English Markdown and Excel reports. The scanner is static: it reads GitHub Actions workflow `run:` commands, preserves workflow/job/step context, and does not execute tests.
 
-The report shows ignored workflows, paired CPU/GPU and NPU workflows, UT/ST case counts, matched cases, missing cases, NPU-only cases, and manual-review cases.
+The reports show ignored workflows, paired CPU/GPU and NPU workflows, UT/ST case counts, matched cases, missing cases, NPU-only cases, and manual-review cases.
 
 ## Instructions
 
@@ -73,13 +73,13 @@ Treat matching conservatively:
 
 ## Reporting
 
-The scanner writes `report.md` to the requested output directory.
+The scanner writes `report.md` and `report.xlsx` to the requested output directory.
 
-The report contains:
+The reports contain:
 
 - ignored workflows
 - scanned workflows with CPU/GPU and NPU case counts
 - UT details
 - ST details
 
-Within the UT and ST sections, matched, CPU/GPU-only, NPU-only, and manual-review cases are shown in that order, with CPU/GPU and NPU references adjacent for easier comparison.
+Within the UT and ST sections, matched, CPU/GPU-only, NPU-only, and manual-review cases are shown in that order, with CPU/GPU and NPU references adjacent for easier comparison. The Excel workbook stores these sections as four sheets: `Ignored Workflows`, `Scanned Workflows`, `UT Cases`, and `ST Cases`.

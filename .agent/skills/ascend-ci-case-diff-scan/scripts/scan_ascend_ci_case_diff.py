@@ -23,6 +23,7 @@ from pathlib import Path
 
 from modules.compare import compare_cases_by_pair, summarize_scanned_workflows
 from modules.config import ST_KIND, UT_KIND, load_config, validate_repo_root
+from modules.excel import write_excel_report
 from modules.render import render_report
 from modules.workflows import build_workflow_groups, collect_scan_data
 
@@ -39,7 +40,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         required=True,
-        help="Directory where the generated report.md will be written.",
+        help="Directory where the generated report.md and report.xlsx will be written.",
     )
     return parser.parse_args()
 
@@ -65,7 +66,10 @@ def main() -> int:
     }
     report_path = output_dir / "report.md"
     report_path.write_text(render_report(report), encoding="utf-8")
+    excel_path = output_dir / "report.xlsx"
+    write_excel_report(excel_path, report)
     print(report_path)
+    print(excel_path)
     return 0
 
 
