@@ -4,12 +4,11 @@ This skill statically audits a target `verl` repository and reports workflow/cas
 
 ## What it does
 
-- Excludes non-test workflows through `config/workflow_scope.json`
-- Excludes `cpu_unit_tests.yml` from the scan because it is treated as shared baseline coverage rather than an NPU-adapted workflow
+- Excludes non-test and non-comparable workflows through `config/workflow_scope.json`
 - Pairs CPU/GPU workflows with their NPU counterparts
 - Counts UT cases at the test-function or test-method level
 - Counts ST cases at the command level
-- Writes an English `report.md`
+- Writes English `report.md` and `report.xlsx` files
 
 ## Workflow pairing
 
@@ -21,13 +20,14 @@ This skill statically audits a target `verl` repository and reports workflow/cas
 
 - `pytest` means UT
 - UT entries are expanded to concrete test functions or test methods whenever the target Python file can be parsed
-- `torchrun` and `bash tests/*.sh` mean ST
+- `torchrun`, `bash tests/*.sh`, and `bash examples/*.sh` mean ST
 - Repeated commands are kept distinct by `workflow name`, `job name`, and `step name`
 - Use `--repo-root` to point at the target `verl` repository root
+- The scanner reads workflow `run:` commands directly and records only the scripts explicitly invoked by each step
 
 ## Output
 
-The report includes:
+The reports include:
 
 - ignored workflows
 - scanned workflows with CPU/GPU and NPU case counts
@@ -35,3 +35,5 @@ The report includes:
 - ST details
 
 Within UT and ST sections, the report shows matched, CPU/GPU-only, NPU-only, and manual-review cases in that order, with adjacent CPU/GPU and NPU references for easy comparison.
+
+The Excel workbook contains four sheets: `Ignored Workflows`, `Scanned Workflows`, `UT Cases`, and `ST Cases`.

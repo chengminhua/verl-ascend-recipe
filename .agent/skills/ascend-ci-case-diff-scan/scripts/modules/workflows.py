@@ -156,7 +156,47 @@ def _extract_run_entries(
         stripped = next_line[indent + 2 :] if len(next_line) >= indent + 2 else next_line.lstrip()
         run_entries.append((stripped, idx + 1))
         idx += 1
-    return run_entries, idx
+    return _merge_shell_continuations(run_entries), idx
+
+
+def _ends_with_shell_continuation(command: str) -> bool:
+    stripped = command.rstrip()
+    if not stripped.endswith("\\"):
+        return False
+    slash_count = 0
+    for char in reversed(stripped):
+        if char != "\\":
+            break
+        slash_count += 1
+    return slash_count % 2 == 1
+
+
+def _merge_shell_continuations(entries: list[tuple[str, int]]) -> list[tuple[str, int]]:
+    merged: list[tuple[str, int]] = []
+    pending_parts: list[str] = []
+    pending_line = 0
+
+    for command, line_number in entries:
+        stripped = command.strip()
+        if not stripped and not pending_parts:
+            continue
+        if not pending_parts:
+            pending_line = line_number
+        if _ends_with_shell_continuation(stripped):
+            pending_parts.append(stripped.rstrip()[:-1].rstrip())
+            continue
+        pending_parts.append(stripped)
+        merged_command = " ".join(part for part in pending_parts if part)
+        if merged_command:
+            merged.append((merged_command, pending_line))
+        pending_parts = []
+        pending_line = 0
+
+    if pending_parts:
+        merged_command = " ".join(part for part in pending_parts if part)
+        if merged_command:
+            merged.append((merged_command, pending_line))
+    return merged
 
 
 def _make_command_case(command_type: str, case_kind: str, target: str, command: str, targets: list[str]) -> dict:

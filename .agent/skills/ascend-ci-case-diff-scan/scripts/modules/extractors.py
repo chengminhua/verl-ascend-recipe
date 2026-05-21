@@ -100,11 +100,11 @@ def extract_torchrun_targets(tokens: list[str], torchrun_idx: int) -> list[str]:
 
 
 def extract_bash_target(tokens: list[str]) -> str | None:
-    """Extract bash-invoked test scripts when the target is an explicit tests/*.sh path."""
+    """Extract bash-invoked test scripts from explicit workflow step commands."""
     for idx, token in enumerate(tokens[:-1]):
         if token == "bash":
             target = normalize_path_text(tokens[idx + 1].strip("\"'"))
-            if target.startswith("tests/") and target.endswith(".sh"):
+            if target.startswith(("tests/", "examples/")) and target.endswith(".sh"):
                 return target
     return None
 

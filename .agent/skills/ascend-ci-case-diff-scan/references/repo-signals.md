@@ -8,7 +8,7 @@ Use these target-repo facts when running `ascend-ci-case-diff-scan` against an e
 
 ## Workflow scope
 
-Exclude workflows that are not part of CPU/GPU/NPU test coverage. The default ignored set is maintained in `config/workflow_scope.json`.
+Exclude workflows that are not part of meaningful CPU/GPU-vs-NPU test coverage. The default ignored set is maintained in `config/workflow_scope.json`.
 
 Examples:
 
@@ -16,6 +16,7 @@ Examples:
 - `cpu_unit_tests.yml`
 - `doc.yml`
 - `docker-*.yml`
+- `e2e_ppo_trainer.yml`
 - `pre-commit.yml`
 - `precommit-autofix.yml`
 - `sanity.yml`
@@ -35,6 +36,7 @@ Recognize only workflow commands that visibly execute tests:
 
 - `pytest ... tests/...`
 - `bash tests/.../*.sh`
+- `bash examples/.../*.sh`
 - `torchrun ... tests/...`
 
 ## Matching expectations

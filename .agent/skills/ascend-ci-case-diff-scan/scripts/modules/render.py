@@ -79,8 +79,13 @@ def render_report(report: dict) -> str:
         "Read this report in order: Ignored Workflows, Scanned Workflows, UT Case Details, and ST Case Details.",
         "",
         (
-            "Within both UT Case Details and ST Case Details, cases are grouped into Matched Cases, "
-            "CPU/GPU-only Cases, NPU-only Cases, and Manual Review."
+            "UT cases are counted and displayed at the individual test function or test method level. "
+            "ST cases are counted and displayed at the executed test command or script level."
+        ),
+        "",
+        (
+            "Within both UT/ST detail sections, cases are grouped into Matched Cases, CPU/GPU-only Cases, "
+            "NPU-only Cases, and Manual Review."
         ),
         "",
         f"## Ignored Workflows ({len(report['ignored_workflows'])})",
