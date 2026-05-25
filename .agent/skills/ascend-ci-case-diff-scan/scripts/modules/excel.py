@@ -26,6 +26,8 @@ DEFAULT_COLUMN_WIDTH = 18
 IGNORED_WORKFLOW_WIDTHS = (70,)
 SCANNED_WORKFLOW_WIDTHS = (90, 22, 26)
 CASE_DETAIL_WIDTHS = (64, 16, 52, 14, 56, 88, 52, 14, 56, 88)
+PAST_SUMMARY_WIDTHS = (14, 48, 24, 12, 12)
+PAST_DETAIL_WIDTHS = (42, 24, 16, 24, 20, 52, 14, 56, 88, 26, 64, 64)
 CASE_STATUS_LABELS = (
     ("matched", "Matched"),
     ("cpu_gpu_only", "CPU/GPU Only"),
@@ -41,6 +43,15 @@ def write_excel_report(path: Path, report: dict) -> None:
         ("Scanned Workflows", _scanned_workflow_rows(report), SCANNED_WORKFLOW_WIDTHS),
         ("UT Cases", _case_rows(report["ut_details"], "UT Case Name"), CASE_DETAIL_WIDTHS),
         ("ST Cases", _case_rows(report["st_details"], "ST Case Name"), CASE_DETAIL_WIDTHS),
+    ]
+    _write_workbook(path, sheets)
+
+
+def write_past_commit_excel_report(path: Path, report: dict) -> None:
+    """Write the past-N-days report as a minimal XLSX workbook."""
+    sheets = [
+        ("Summary", _past_summary_rows(report), PAST_SUMMARY_WIDTHS),
+        ("Commit Details", _past_detail_rows(report), PAST_DETAIL_WIDTHS),
     ]
     _write_workbook(path, sheets)
 
@@ -277,6 +288,60 @@ def _excel_multiline(value: str) -> str:
 def _xml_text(value: str) -> str:
     cleaned = "".join(character for character in value if _is_valid_xml_char(character))
     return escape(cleaned)
+
+
+def _past_summary_rows(report: dict) -> list[list[object]]:
+    rows = [["Case Kind", "Workflow", "NPU Status", "Case Count", "Commit Count"]]
+    rows.extend(
+        [
+            row["case_kind"],
+            row["workflow_name"],
+            row["npu_status"],
+            row["case_count"],
+            row["commit_count"],
+        ]
+        for row in report["summary"]
+    )
+    return rows
+
+
+def _past_detail_rows(report: dict) -> list[list[object]]:
+    rows = [
+        [
+            "Commit Hash",
+            "Commit Time",
+            "Commit Title",
+            "Changed Files",
+            "Case Kind",
+            "Case Name",
+            "NPU Status",
+            "Workflow Name",
+            "Workflow Path",
+            "Job Name",
+            "Step Name",
+            "Line Number",
+            "Raw Command",
+        ]
+    ]
+    for row in report["details"]:
+        rows.append(
+            [
+                row["commit_hash"],
+                row["commit_time"],
+                row["commit_title"],
+                _excel_multiline("<br>".join(row["changed_files"])),
+                row["case_kind"],
+                row["case_name"],
+                row["npu_status"],
+                row["workflow_name"],
+                row["workflow_path"],
+                row["job_name"],
+                row["step_name"],
+                row["line_number"],
+                row["raw_command"],
+            ]
+        )
+    return rows
 
 
 def _is_valid_xml_char(character: str) -> bool:

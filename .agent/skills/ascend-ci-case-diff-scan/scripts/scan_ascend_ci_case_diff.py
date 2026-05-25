@@ -23,8 +23,9 @@ from pathlib import Path
 
 from modules.compare import compare_cases_by_pair, summarize_scanned_workflows
 from modules.config import ST_KIND, UT_KIND, load_config, validate_repo_root
-from modules.excel import write_excel_report
-from modules.render import render_report
+from modules.excel import write_excel_report, write_past_commit_excel_report
+from modules.past_commits import build_past_commit_report
+from modules.render import render_past_commit_report, render_report
 from modules.workflows import build_workflow_groups, collect_scan_data
 
 
@@ -41,6 +42,12 @@ def parse_args() -> argparse.Namespace:
         "--output-dir",
         required=True,
         help="Directory where the generated report.md and report.xlsx will be written.",
+    )
+    parser.add_argument(
+        "--since-days",
+        type=int,
+        default=None,
+        help="Optional number of days for past-commit analysis. When set, also write report-past-N.md/xlsx.",
     )
     return parser.parse_args()
 
@@ -70,6 +77,16 @@ def main() -> int:
     write_excel_report(excel_path, report)
     print(report_path)
     print(excel_path)
+    if args.since_days is not None:
+        if args.since_days <= 0:
+            raise ValueError("--since-days must be a positive integer")
+        past_report = build_past_commit_report(repo_root, config, args.since_days, cases)
+        past_report_path = output_dir / f"report-past-{args.since_days}.md"
+        past_report_path.write_text(render_past_commit_report(past_report), encoding="utf-8")
+        past_excel_path = output_dir / f"report-past-{args.since_days}.xlsx"
+        write_past_commit_excel_report(past_excel_path, past_report)
+        print(past_report_path)
+        print(past_excel_path)
     return 0
 
 

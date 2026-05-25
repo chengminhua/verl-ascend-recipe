@@ -133,7 +133,20 @@ def extract_test_functions_from_file(path: Path) -> list[str]:
         module = ast.parse(load_text(path))
     except SyntaxError:
         return []
+    return extract_test_functions_from_module(module)
 
+
+def extract_test_functions_from_text(content: str) -> list[str]:
+    """Extract test names from Python source content."""
+    try:
+        module = ast.parse(content)
+    except SyntaxError:
+        return []
+    return extract_test_functions_from_module(module)
+
+
+def extract_test_functions_from_module(module: ast.Module) -> list[str]:
+    """Extract test names from a parsed Python module."""
     names: list[str] = []
     for node in module.body:
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_"):

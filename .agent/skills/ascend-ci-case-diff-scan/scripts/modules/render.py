@@ -130,3 +130,48 @@ def render_report(report: dict) -> str:
         ):
             lines.extend(render_case_section(section_title, report[key][section_key]))
     return "\n".join(lines).rstrip() + "\n"
+
+
+def render_past_commit_report(report: dict) -> str:
+    """Render the past-N-days commit analysis as Markdown."""
+    lines = [
+        "# Ascend CI Past N Days Commit Analysis",
+        "",
+        f"Repository: `{report['repo_root']}`",
+        f"Window: past `{report['since_days']}` days",
+        f"Commits scanned: `{report['commit_count']}`",
+        "",
+        "## Summary",
+        "",
+    ]
+    summary_rows = [
+        [row["case_kind"], row["workflow_name"], row["npu_status"], str(row["case_count"]), str(row["commit_count"])]
+        for row in report["summary"]
+    ]
+    if summary_rows:
+        lines.extend(render_table(["Case Kind", "Workflow", "NPU Status", "Case Count", "Commit Count"], summary_rows))
+    else:
+        lines.append("No CI-related commits were found in the selected window.")
+    lines.extend(["", "## Commit Details", ""])
+    details = report["details"]
+    if not details:
+        lines.append("- None")
+    else:
+        for row in details:
+            lines.append(f"- Commit `{row['commit_hash']}` - {row['commit_title']}")
+            lines.append(f"  - Time: `{row['commit_time']}`")
+            lines.append(f"  - Changed files: `{'<br>'.join(row['changed_files'])}`")
+            lines.append(f"  - Case: `{row['case_name']}`")
+            lines.append(f"  - Kind: `{row['case_kind']}`")
+            lines.append(f"  - Workflow: `{row['workflow_name']} / {row['job_name']} / {row['step_name']}`")
+            lines.append(f"  - Status: `{row['npu_status']}`")
+            if row["npu_refs"]:
+                lines.append("  - NPU refs:")
+                for ref in row["npu_refs"]:
+                    lines.append(
+                        f"    - `{ref['workflow_name']} / {ref['job_name']} / {ref['step_name']}` "
+                        f"`{ref['workflow_path']}` line `{ref['line_number']}`"
+                    )
+            else:
+                lines.append("  - NPU refs: None")
+    return "\n".join(lines).rstrip() + "\n"

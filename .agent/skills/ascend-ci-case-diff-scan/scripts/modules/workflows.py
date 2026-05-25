@@ -301,24 +301,29 @@ def _extract_cases_from_command(
     return deduped
 
 
-def parse_workflow(path: Path, repo_root: Path, config: WorkflowConfig) -> tuple[WorkflowInfo | None, list[dict]]:
-    """Parse one workflow file and extract test cases from each run block."""
-    file_name = path.name
+def parse_workflow_content(
+    file_name: str,
+    workflow_path: str,
+    content: str,
+    repo_root: Path,
+    config: WorkflowConfig,
+) -> tuple[WorkflowInfo | None, list[dict]]:
+    """Parse one workflow content string and extract test cases from each run block."""
     if is_ignored_workflow(file_name, config):
         return None, []
 
-    content = load_text(path)
-    workflow_name = path.stem
+    file_stem = Path(file_name).stem
+    workflow_name = file_stem
     name_match = WORKFLOW_NAME_RE.search(content)
     if name_match:
         workflow_name = name_match.group(1).strip().strip("\"'")
-    workflow_kind = classify_workflow(path.stem, content)
+    workflow_kind = classify_workflow(file_stem, content)
     workflow_info = WorkflowInfo(
         workflow_name=workflow_name,
-        workflow_path=normalize_path_text(path.relative_to(repo_root).as_posix()),
+        workflow_path=normalize_path_text(workflow_path),
         file_name=file_name,
         workflow_kind=workflow_kind,
-        pair_key=workflow_pair_key(path.stem),
+        pair_key=workflow_pair_key(file_stem),
     )
 
     lines = content.splitlines()
@@ -356,6 +361,13 @@ def parse_workflow(path: Path, repo_root: Path, config: WorkflowConfig) -> tuple
             continue
         idx += 1
     return workflow_info, cases
+
+
+def parse_workflow(path: Path, repo_root: Path, config: WorkflowConfig) -> tuple[WorkflowInfo | None, list[dict]]:
+    """Parse one workflow file and extract test cases from each run block."""
+    file_name = path.name
+    rel_path = normalize_path_text(path.relative_to(repo_root).as_posix())
+    return parse_workflow_content(file_name, rel_path, load_text(path), repo_root, config)
 
 
 def collect_scan_data(repo_root: Path, config: WorkflowConfig) -> tuple[list[WorkflowInfo], list[dict], list[str]]:
