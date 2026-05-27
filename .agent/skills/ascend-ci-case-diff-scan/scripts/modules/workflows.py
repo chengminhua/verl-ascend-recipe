@@ -406,7 +406,7 @@ def collect_scan_data(repo_root: Path, config: WorkflowConfig) -> tuple[list[Wor
     workflow_infos: list[WorkflowInfo] = []
     cases: list[dict] = []
     ignored_paths: list[str] = []
-    for path in sorted(workflow_dir.glob("*.yml")):
+    for path in sorted(set(workflow_dir.glob("*.yml")) | set(workflow_dir.glob("*.yaml"))):
         rel_path = normalize_path_text(path.relative_to(repo_root).as_posix())
         if is_ignored_workflow(path.name, config):
             ignored_paths.append(rel_path)

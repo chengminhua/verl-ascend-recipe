@@ -58,6 +58,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     """Run the workflow parity scan."""
     args = parse_args()
+    if args.since_days is not None and args.since_days <= 0:
+        raise ValueError("--since-days must be a positive integer")
     repo_root = Path(args.repo_root).resolve()
     output_dir = Path(args.output_dir).resolve()
     validate_repo_root(repo_root)
@@ -81,8 +83,6 @@ def main() -> int:
     print(report_path)
     print(excel_path)
     if args.since_days is not None:
-        if args.since_days <= 0:
-            raise ValueError("--since-days must be a positive integer")
         past_report = build_past_commit_report(repo_root, config, args.since_days, cases)
         past_report_path = output_dir / f"report-past-{args.since_days}.md"
         past_report_path.write_text(render_past_commit_report(past_report), encoding="utf-8")
