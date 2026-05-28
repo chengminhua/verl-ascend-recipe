@@ -411,4 +411,9 @@ def _past_detail_rows(report: dict) -> list[list[object]]:
 
 def _is_valid_xml_char(character: str) -> bool:
     codepoint = ord(character)
-    return codepoint in (0x9, 0xA, 0xD) or 0x20 <= codepoint <= 0xD7FF or 0xE000 <= codepoint <= 0xFFFD
+    return (
+        codepoint in (0x9, 0xA, 0xD)
+        or 0x20 <= codepoint <= 0xD7FF
+        or 0xE000 <= codepoint <= 0xFFFD
+        or 0x10000 <= codepoint <= 0x10FFFF
+    )

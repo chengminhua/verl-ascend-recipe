@@ -17,19 +17,28 @@ This skill statically audits a target `verl` repository and reports workflow/cas
 - `gpu_unit_tests.yml` pairs with `npu_unit_tests.yml`
 - Standalone NPU workflows such as `e2e_ascend.yml` and `nightly_ascend.yml` remain NPU-only
 
-## Case rules
+## How cases are classified
 
-- `pytest` means UT
-- UT entries are expanded to concrete test functions or test methods whenever the target Python file can be parsed
-- `torchrun`, `bash tests/*.sh`, and `bash examples/*.sh` mean ST
+- `pytest` commands → **UT** cases, expanded to function-level (`test_*` / `Test*::test_*`) whenever the Python file can be parsed
+- `torchrun`, `bash tests/*.sh`, and `bash examples/*.sh` → **ST** cases, recorded at the command level
 - Repeated commands are kept distinct by `workflow name`, `job name`, and `step name`
-- Use `--repo-root` to point at the target `verl` repository root
-- The scanner reads workflow `run:` commands directly and records only the scripts explicitly invoked by each step
-- `--since-days N` enables a second report for the last `N` merged days and must be a positive integer
-- The past-N-days report keeps the same workflow-first logic as the full scan, but only surfaces CPU/GPU workflows and cases that ended up changed within the window
-- NPU workflows are used as current support evidence in the past report, not as changed-workflow rows
-- For past-N-days cases, `Related Commits` reflects commits in the selected window that touched the workflow or the changed case target
-- `bash` and `torchrun` use strict command-level signatures; `pytest` keeps execution semantics while avoiding false differences from broad discovery selectors
+
+## CLI usage
+
+```bash
+python scripts/scan_ascend_ci_case_diff.py \
+  --repo-root {PATH}/verl \
+  --output-dir ./outputs
+```
+
+- `--repo-root` — path to the target `verl` repository root
+- `--since-days N` — (optional) also generate a past-N-days report; must be a positive integer
+
+## Past-N-days behavior
+
+- Walks first-parent history for merged commits in the last `N` days
+- Reports only effective final-state changes (additions later removed or reverted are excluded)
+- `Related Commits` lists commits that touched the workflow or the changed case target
 
 ## Output
 

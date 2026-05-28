@@ -31,7 +31,7 @@ from .extractors import (
     should_keep_target,
 )
 
-WORKFLOW_NAME_RE = re.compile(r"^\s*name:\s*(.+?)\s*$")
+WORKFLOW_NAME_RE = re.compile(r"^\s*name:\s*(.+?)\s*$", re.MULTILINE)
 JOB_RE = re.compile(r"^(\s{2})([A-Za-z0-9_-]+):\s*$")
 STEP_NAME_RE = re.compile(r"^(\s*)-\s+name:\s*(.+?)\s*$")
 RUN_RE = re.compile(r"^(\s*)run:\s*(.*)$")
@@ -98,6 +98,9 @@ def _normalize_pytest_signature(tokens: list[str]) -> str:
             continue
         if token in PYTEST_SELECTION_OPTIONS and idx + 1 < len(tokens):
             idx += 2
+            continue
+        if token.startswith(("-k=", "-m=")):
+            idx += 1
             continue
         if token.startswith("-"):
             normalized_tokens.append(normalize_path_text(token))
@@ -406,7 +409,7 @@ def collect_scan_data(repo_root: Path, config: WorkflowConfig) -> tuple[list[Wor
     workflow_infos: list[WorkflowInfo] = []
     cases: list[dict] = []
     ignored_paths: list[str] = []
-    for path in sorted(workflow_dir.glob("*.yml")):
+    for path in sorted(set(workflow_dir.glob("*.yml")) | set(workflow_dir.glob("*.yaml"))):
         rel_path = normalize_path_text(path.relative_to(repo_root).as_posix())
         if is_ignored_workflow(path.name, config):
             ignored_paths.append(rel_path)

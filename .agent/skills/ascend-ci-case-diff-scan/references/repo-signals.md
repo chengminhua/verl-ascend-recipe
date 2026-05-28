@@ -4,25 +4,13 @@ Use these target-repo facts when running `ascend-ci-case-diff-scan` against an e
 
 ## Primary inputs
 
-- `.github/workflows/*.yml`
+- `.github/workflows/*.yml` and `.github/workflows/*.yaml`
 
 ## Workflow scope
 
-Exclude workflows that are not part of meaningful CPU/GPU-vs-NPU test coverage. The default ignored set is maintained in `config/workflow_scope.json`.
+Exclude workflows that are not part of meaningful CPU/GPU-vs-NPU test coverage. The authoritative ignored set is maintained in `config/workflow_scope.json` (supports exact names and `glob` patterns like `docker-*.yml`).
 
-Examples:
-
-- `check-pr-title.yml`
-- `cpu_unit_tests.yml`
-- `doc.yml`
-- `docker-*.yml`
-- `e2e_ppo_trainer.yml`
-- `pre-commit.yml`
-- `precommit-autofix.yml`
-- `sanity.yml`
-- `scorecard.yml`
-- `secrets_scan.yml`
-- `type-coverage-check.yml`
+See that file for the current list.
 
 ## Workflow families
 

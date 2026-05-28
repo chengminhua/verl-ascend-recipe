@@ -17,7 +17,7 @@ The full reports show ignored workflows, paired CPU/GPU and NPU workflows, UT/ST
 
 1. Read [references/repo-signals.md](./references/repo-signals.md) for repo-specific boundaries.
 2. Identify the target `verl` repository root, for example `{PATH}/verl`.
-3. Run the scanner from this repository:
+3. Run the scanner. The commands below assume the working directory is the root of `verl-ascend-recipe` (where `.agent/` lives). You can also `cd` into `scripts/` and run `python scan_ascend_ci_case_diff.py ...` directly.
 
 ```shell
 python .agent/skills/ascend-ci-case-diff-scan/scripts/scan_ascend_ci_case_diff.py \
@@ -38,49 +38,21 @@ python .agent/skills/ascend-ci-case-diff-scan/scripts/scan_ascend_ci_case_diff.p
 
 ## Extraction Rules
 
-Recognize only workflow commands that visibly execute tests:
+Recognize only workflow commands that visibly execute tests (see [references/repo-signals.md](./references/repo-signals.md#extractable-command-forms) for details):
 
 - `pytest ... tests/...`
-- `bash tests/.../*.sh`
-- `bash examples/.../*.sh`
+- `bash tests/.../*.sh` or `bash examples/.../*.sh`
 - `torchrun ... tests/...`
 
-For each extracted case, preserve:
+For each extracted case, preserve: `workflow_name`, `job_name`, `step_name`, `command_type`, `target`, `raw_command`, `signature`.
 
-- `workflow_name`
-- `job_name`
-- `step_name`
-- `command_type`
-- `target`
-- `raw_command`
-- `signature`
+When the same command appears in different workflow/job/step contexts, keep cases distinct. For UT, expand to function-level or test-method-level whenever the target file can be parsed. For ST scripts, record only scripts explicitly invoked by the workflow step — do not inspect the script body.
 
-When the same command is repeated, keep cases distinct by `workflow_name`, `job_name`, and `step_name`.
-For UT expansion, treat Python test functions and `Test*::test_*` methods as the reporting unit whenever the target file can be parsed.
-For ST scripts, record only scripts explicitly invoked by the workflow step; do not inspect the script body for nested commands.
-
-Case matching uses `command_type`, `target`, and `signature`.
-
-- `bash` and `torchrun` signatures are strict command-level signatures. Environment assignments and command arguments are part of the test semantics.
-- `pytest` signatures keep execution semantics while avoiding false differences from broad discovery selectors. Function-level UT alignment is decided from the expanded concrete test path plus the retained execution signature.
-- Same target with a materially different retained signature is not treated as aligned.
+Case matching uses `command_type`, `target`, and `signature` (see [references/repo-signals.md](./references/repo-signals.md#matching-expectations) for detailed matching rules).
 
 ## Past-N-Days Analysis
 
-When `--since-days N` is set, the scanner:
-
-- walks the current branch first-parent history for commits merged in the last `N` days
-- compares the window-start snapshot with current `HEAD`
-- keeps only effective final-state changes, so additions that were later removed or reverted are not reported as changed cases
-- starts from CPU/GPU workflows and their referenced UT/ST cases, matching the full-scan workflow-first model
-- uses NPU workflows only as current `HEAD` support evidence, not as rows in `Changed Workflows`
-
-The past report columns should be read as:
-
-- `Window Start Case Count`: extracted cases in that CPU/GPU workflow at the start of the window
-- `Current HEAD Case Count`: extracted cases in that CPU/GPU workflow at current `HEAD`
-- `UT/ST Not Fully Aligned with NPU Count`: changed CPU/GPU UT/ST cases whose current `HEAD` NPU status is not fully aligned, including missing and manual-review cases
-- `Related Commits`: commits in the selected window that touched the workflow or the changed case target
+When `--since-days N` is set, the scanner walks the current branch first-parent history for commits merged in the last `N` days, compares the window-start snapshot with current `HEAD`, and reports only effective final-state changes. See [references/repo-signals.md](./references/repo-signals.md#past-n-days-expectations) for the full scoping and column semantics.
 
 ## Boundaries
 
@@ -92,18 +64,9 @@ The past report columns should be read as:
 
 ## Classification Rules
 
-Use these output categories:
+Output categories: `aligned`, `missing_in_npu_workflows`, `manual_review_needed`, `npu_only`.
 
-- `aligned`
-- `missing_in_npu_workflows`
-- `manual_review_needed`
-- `npu_only`
-
-Treat matching conservatively:
-
-- Exact target matches are the strongest signal.
-- Compatible signatures can be aligned.
-- Different signatures for the same target should fall back to manual review.
+Exact target matches are the strongest signal; different signatures for the same target fall back to `manual_review_needed`. See [references/repo-signals.md](./references/repo-signals.md#matching-expectations) for the full matching rules.
 
 ## Reporting
 
