@@ -9,7 +9,7 @@
 ```bash
 git clone https://github.com/verl-project/verl.git
 git clone https://github.com/verl-project/verl-ascend-recipe.git
-cp -r verl-ascend-recipe ./verl
+mkdir -p verl/verl_ascend_recipe && cp -r verl-ascend-recipe/* verl/verl_ascend_recipe
 cd verl
 ```
 
