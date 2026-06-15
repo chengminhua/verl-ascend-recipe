@@ -1,0 +1,9 @@
+# true_on_policy — Ascend NPU train-infer consistency (GRPO / GSPO / DAPO)
+UPSTREAM=https://github.com/verl-project/verl.git
+MODE=pinned_tag
+TAG=release/v0.8.0
+PIP_INSTALL=pip install verl@git+https://github.com/verl-project/verl.git@release/v0.8.0
+GIT_SETUP=git clone https://github.com/verl-project/verl.git && cd verl && git checkout release/v0.8.0 && git fetch origin pull/6678/head:pr-6678 && git merge pr-6678 --no-edit && git submodule update --init --recursive recipe
+RECIPE_FOLDER=true_on_policy
+NOTES=PP adaptation (verl PR #6678) must be merged on top of release/v0.8.0 before `pip install -e .`. Copy this recipe into `verl/verl_ascend_recipe/true_on_policy`. Additional stack pins (MindSpeed, Megatron, vLLM, CANN, batch_invariant ops) are documented in README.md — pip-installing verl alone is not sufficient.
+REFRESH=When PR #6678 lands in release/v0.8.0, update TAG/COMMIT and PIP_INSTALL. From verl-ascend-recipe root: ./install_verl.sh --recipe true_on_policy --method git --show
