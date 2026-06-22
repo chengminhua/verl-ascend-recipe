@@ -11,7 +11,7 @@
 | pytorch         | 2.9.0              |                                    |
 | vllm            | v0.18.0	 | |
 | vllm-ascend     | releases/v0.18.0| |
-| verl            |main| commit 8ebf167e32e790e92a85eae2ddbecb8c515d8156  |
+| verl            | release/v0.8.0 |   |
 | transformers    | v5.3.0             | |
 | Megatron        | core0.16.0 | |
 | Megatron-Bridge | v0.3.1 | |
@@ -53,7 +53,7 @@ cd ..
 ## 安装vllm_ascend
 
 ```bash
-git clone https://github.com/vllm-project/vllm-ascend.git -b v0.18.0rc1
+git clone https://github.com/vllm-project/vllm-ascend.git -b releases/v0.18.0
 cd vllm-ascend
 git apply ../verl-ascend-recipe/GLM5/patch/vllm_ascend.patch
 pip install -r requirements-dev.txt
@@ -66,9 +66,9 @@ pip install triton-ascend==3.2.1 --extra-index-url=https://triton-ascend.osinfra
 ## 安装verl
 
 ```bash
-git clone https://github.com/volcengine/verl.git
+git clone https://github.com/volcengine/verl.git -b release/v0.8.0
 cd verl
-git checkout 8ebf167e32e790e92a85eae2ddbecb8c515d8156
+git apply ../verl-ascend-recipe/GLM5/patch/verl.patch
 pip install -r requirements-npu.txt
 pip install -v -e .
 cd ..
@@ -98,8 +98,8 @@ cd ..
 git clone https://github.com/NVIDIA-NeMo/Megatron-Bridge.git -b v0.3.1
 cd Megatron-Bridge
 git apply ../verl-ascend-recipe/GLM5/patch/megatron-bridge.patch
-cp -r Megatron-Bridge/src/megatron/bridge verl/megatron
 cd ..
+cp -r Megatron-Bridge/src/megatron/bridge verl/megatron
 ```
 
 # 训练启动
@@ -107,5 +107,6 @@ cd ..
 
 ```bash
 cd verl
+# 修改ray_start.sh中对应的网卡、主节点IP、权重、数据集地址
 bash ../verl-ascend-recipe/GLM5/scripts/ray_start.sh
 ```
