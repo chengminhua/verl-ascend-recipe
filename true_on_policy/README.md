@@ -14,7 +14,7 @@
 | vLLM | 0.18.0 |                        |
 | vLLM-Ascend | v0.18.0 + [PR #10375](https://github.com/vllm-project/vllm-ascend/pull/10375) | FA3 batch-invariant 适配 |
 | Megatron-LM | `3bec9aa97dda898d16ff5a89bac0ed2b6682b172` |                        |
-| MindSpeed | `core_r0.16.0` + [MR/3551](https://gitcode.com/Ascend/MindSpeed/merge_requests/3551) | TE 路径适配                |
+| MindSpeed | `core_r0.16.0` |               |
 | verl | `release/v0.8.0` + [PR #6678](https://github.com/verl-project/verl/pull/6678) | PP 适配                  |
 | triton_ascend | 3.2.1 | CANN 9.0 需此版本          |
 
@@ -91,8 +91,6 @@ cp -r verl-ascend-recipe/true_on_policy verl/verl_ascend_recipe/
 git clone https://gitcode.com/Ascend/MindSpeed.git
 cd MindSpeed
 git checkout core_r0.16.0
-git fetch https://gitcode.com/Ascend/MindSpeed.git +refs/merge-requests/3551/head:pr_3551
-git merge pr_3551 --no-edit
 pip install -r requirements.txt
 pip install -v -e .
 cd ..
