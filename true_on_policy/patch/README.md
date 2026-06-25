@@ -110,7 +110,7 @@ apply_batch_consistency_patches() # Layer 2：再 patch vLLM-Ascend
 
 ### 4.2 两类源码 patch
 
-#### A. PP 支持（[verl PR #6732](https://github.com/verl-project/verl/pull/6732)）
+#### A. PP 支持
 
 NPU 上 vLLM 通过 `engine_kwargs.vllm.pipeline_parallel_size` 配置 PP，而原版 verl 在 RolloutConfig 校验阶段拒绝 PP > 1，且 replica / worker 切分未考虑 PP。
 
@@ -236,35 +236,3 @@ patch/
 ├── npu_true_on_policy_patch.py        # Layer 2：vLLM runtime monkey patch
 └── batch_invariant_ops.py             # Layer 2：batch-invariant 算子注册
 ```
-
----
-
-## 9. 设计决策摘要
-
-| 决策 | 理由 |
-| --- | --- |
-| 单一入口 `VERL_USE_EXTERNAL_MODULES` | 用户无感知，跑脚本即可 |
-| recipe 外挂、不改 verl 主库 | 便于独立维护与 verl 版本升级 |
-| 版本检测 + upstream 特性检测 | 同时支持 v0.8.x 与 main；合入后自动跳过 |
-| PP / MindSpeed patch 拆分 | 两部分 upstream 合入进度可不同 |
-| `git apply` 幂等 | 重复启动安全 |
-| 源码 patch 与 runtime patch 分离 | 框架能力 vs 数值对齐，职责清晰 |
-| 训推两侧同时 batch-invariant | 仅改一侧不足以对齐 logprob |
-
----
-
-## 10. 维护说明
-
-- **PR #6732 合入 verl 后**：可删除对应 PP patch 文件，并简化 `verl_patch_selector.py` 中 PP 分支；特性检测 `ensure_rollout_config` 会在合入后自动跳过。
-- **MindSpeed 修复合入 upstream 后**：同理删除 `verl_mindspeed_batch_invariant.patch`。
-- **新增 verl 版本**：若新版本的 PP 相关文件上下文变化，在 `verl_patches/` 增加新 diff，并在 selector 中扩展分支。
-- **诊断**：可在 verl 根目录调用 `get_verl_patch_plan()`（见 `apply_verl_source_patches.py`）查看当前将应用/跳过的 patch。
-
----
-
-## 11. 参考
-
-- [verl PR #6732](https://github.com/verl-project/verl/pull/6732) — NPU vLLM PP 支持
-- [vLLM-Ascend PR #10375](https://github.com/vllm-project/vllm-ascend/pull/10375) — FA3 batch-invariant
-- 上级文档：[true_on_policy/README.md](../README.md)
-- 精度排查：[transfer_to_npu_guide.md](../../../docs/ascend_tutorial/dev_guide/model_dev/transfer_to_npu_guide.md)（自 verl-ascend-recipe 根目录）
