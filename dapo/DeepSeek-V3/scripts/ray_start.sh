@@ -70,12 +70,12 @@ python3 -c "import mindspeed; from mindspeed.op_builder import GroupMatmulAddOpB
 
 if [ "$MASTER_ADDR" = "$CURRENT_IP" ]; then
     # 主节点启动
-    ray start --head --port 6766 --dashboard-host=$MASTER_ADDR --node-ip-address=$CURRENT_IP --dashboard-port=8260 --resources='{"NPU": '$NPU_PER_NODE'}'
+    ray start --head --port 6766 --dashboard-host=$MASTER_ADDR --node-ip-address=$CURRENT_IP --dashboard-port=8260 --resources='{"NPU": '$NPUS_PER_NODE'}'
     while true; do
         ray_status_output=$(ray status)
         npu_count=$(echo "$ray_status_output" | grep -oP '(?<=/)\d+\.\d+(?=\s*(NPU|GPU))' | head -n 1)
         npu_count_int=$(echo "$npu_count" | awk '{print int($1)}')
-        device_count=$((npu_count_int / $NPU_PER_NODE))
+        device_count=$((npu_count_int / $NPUS_PER_NODE))
 
         # 判断 device_count 是否与 NNODES 相等
         if [ "$device_count" -eq "$NNODES" ]; then
@@ -92,7 +92,7 @@ else
     # 子节点尝试往主节点注册ray直到成功
     while true; do
         # 尝试连接 Ray 集群
-        ray start --address="$MASTER_ADDR:6766" --resources='{"NPU": '$NPU_PER_NODE'}' --node-ip-address=$CURRENT_IP
+        ray start --address="$MASTER_ADDR:6766" --resources='{"NPU": '$NPUS_PER_NODE'}' --node-ip-address=$CURRENT_IP
 
         # 检查连接是否成功
         ray status
