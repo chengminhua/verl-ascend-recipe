@@ -87,7 +87,7 @@ git checkout release/v0.8.0
 git submodule update --init --recursive recipe   # DAPO 等算法 recipe，见下文
 
 # 将本 recipe 放入 verl
-git clone https://github.com/verl-project/verl-ascend-recipe.git
+git clone https://github.com/verl-project/verl-ascend-recipe.git ../verl-ascend-recipe
 mkdir -p verl_ascend_recipe
 cp -r ../verl-ascend-recipe/true_on_policy verl_ascend_recipe/
 
