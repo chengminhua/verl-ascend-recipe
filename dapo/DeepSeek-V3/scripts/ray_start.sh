@@ -41,7 +41,7 @@ export VLLM_ASCEND_ENABLE_NZ=0
 DEFAULT_SH="test_dapo_deepseekv3_671b_megatron_A3_after.sh"
 echo "Use $DEFAULT_SH"
 ulimit -n 65536
-mkdir logs
+mkdir -p logs
 
 # 修改为当前节点的通信网卡
 SOCKET_IFNAME="Your IFNAME"
